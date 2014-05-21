@@ -2,10 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BrawlerPlayerManager : Singleton<BrawlerPlayerManager> 
+public class OrbitPlayerManager : Singleton<OrbitPlayerManager> 
 {
 	public List<GameObject> CharacterList = new List<GameObject>();
-	public List<BrawlerPlayerComponent> PlayerList = new List<BrawlerPlayerComponent>();
+	public List<OrbitPlayerComponent> PlayerList = new List<OrbitPlayerComponent>();
 	public Transform[] SpawnPoints;
 
 	private int mCurrentActivePlayers = 1;
@@ -39,11 +39,11 @@ public class BrawlerPlayerManager : Singleton<BrawlerPlayerManager>
 		for(int i = 0; i < 4; i++)
 		{
 
-			if (BrawlerUserInput.Instance.IsGamePadActive(id - 1))
+			if (OrbitUserInput.Instance.IsGamePadActive(id - 1))
 		    {
 				mCurrentActivePlayers++;
 				GameObject go = (GameObject)GameObject.Instantiate(CharacterList[0], RandomSpawnPoint().position, Quaternion.identity);
-				BrawlerPlayerComponent player = go.GetComponent<BrawlerPlayerComponent>();
+				OrbitPlayerComponent player = go.GetComponent<OrbitPlayerComponent>();
 				PlayerList.Add(player);
 				player.SetID(id);
 				player.SetGamepadID(id - 1);
@@ -68,7 +68,7 @@ public class BrawlerPlayerManager : Singleton<BrawlerPlayerManager>
 		//{
 			mCurrentActivePlayers++;
 			GameObject go = (GameObject)GameObject.Instantiate(CharacterList[0], RandomSpawnPoint().position, Quaternion.identity);
-			BrawlerPlayerComponent player = go.GetComponent<BrawlerPlayerComponent>();
+			OrbitPlayerComponent player = go.GetComponent<OrbitPlayerComponent>();
 			PlayerList.Add(player);
 			player.SetID(id);
 			player.SetGamepadID(id - 1);

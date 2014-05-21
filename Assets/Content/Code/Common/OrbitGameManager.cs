@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BrawlerGameManager : GameManager 
+public class OrbitGameManager : GameManager 
 {
 	protected override void Awake()
 	{

@@ -3,7 +3,7 @@ using System.Collections;
 
 using XInputDotNetPure;
 
-public class BrawlerUserInput : UserInput <BrawlerUserInput>
+public class OrbitUserInput : UserInput <OrbitUserInput>
 {
     public GrendelKeyBinding UseKey01 = new GrendelKeyBinding("Use01", KeyCode.W, KeyCode.W, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
     public GrendelKeyBinding UseKey02 = new GrendelKeyBinding("Use02", KeyCode.S, KeyCode.S, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);    

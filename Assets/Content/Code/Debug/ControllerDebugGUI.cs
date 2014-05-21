@@ -7,7 +7,7 @@ using XInputDotNetPure; // Required in C#
 
 public class ControllerDebugGUI : MonoBehaviour 
 {
-	public BrawlerUserInput UserInputReference;
+	public OrbitUserInput UserInputReference;
 
 	public Texture2D JoystickCircleTexture; 
 	public Texture2D JoystickCircleRing;
