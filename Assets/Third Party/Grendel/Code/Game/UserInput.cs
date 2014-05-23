@@ -28,6 +28,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 	private Dictionary<GrendelKeyBinding.GamePadJoystickValues, List<GrendelKeyBinding>> mGamepadJoystickBindings = new Dictionary<GrendelKeyBinding.GamePadJoystickValues, List<GrendelKeyBinding>>();
 
     private List<GrendelKeyBinding> mKeysDown = new List<GrendelKeyBinding>();
+	private List<UserInputKeyEvent> mEventsToSend = new List<UserInputKeyEvent>();
 
 	private Dictionary<int, List<GrendelKeyBinding>> mKeyDownDict = new Dictionary<int, List<GrendelKeyBinding>>();
 	
@@ -162,19 +163,28 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 			//}
         }
     }
-     
-    // Update is called once per frame
-    private void Update ()
+        
+    private void FixedUpdate ()
     { 
         if(Input.GetKeyDown(KeyCode.BackQuote))
         {
             if(GameOptions.Instance.DebugMode){ Console.Instance.ToggleConsole(); }
         }
 
+		GatherGamePadInput();
+		GatherJoystickInput();
+
         foreach(GrendelKeyBinding binding in mKeysDown)
         {
             EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.KEYHELD, binding, 0, Vector3.zero, this));
         }
+
+		foreach(UserInputKeyEvent evt in mEventsToSend)
+		{
+			EventManager.Instance.Post(evt);
+		}
+
+		mEventsToSend.Clear();
     }
 
     private void OnGUI()
@@ -198,8 +208,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
             ProcessMouseInput(e.button, e.type);
         }
 
-		GatherGamePadInput();
-		GatherJoystickInput();
+
     }
 
     private void ProcessKeycode(KeyCode code, UserInputKeyEvent.TYPE inputType)
@@ -218,7 +227,8 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 					inputType = UserInputKeyEvent.TYPE.KEYHELD;
 				}
 
-				EventManager.Instance.Post(new UserInputKeyEvent(inputType, binding, 0, Vector3.zero, this)); //TODO: Figure out how to get proper player index
+				//EventManager.Instance.Post(new UserInputKeyEvent(inputType, binding, 0, Vector3.zero, this)); //TODO: Figure out how to get proper player index
+				mEventsToSend.Add(new UserInputKeyEvent(inputType, binding, 0, Vector3.zero, this));
 
                 if (inputType == UserInputKeyEvent.TYPE.KEYDOWN)
                 {
@@ -256,7 +266,8 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
         {
             if (binding.Enabled)
             {
-                EventManager.Instance.Post(new UserInputKeyEvent(inputType, binding, 0, Vector3.zero, this));
+                //EventManager.Instance.Post(new UserInputKeyEvent(inputType, binding, 0, Vector3.zero, this));
+				mEventsToSend.Add(new UserInputKeyEvent(inputType, binding, 0, Vector3.zero, this));
 
                 if (inputType == UserInputKeyEvent.TYPE.KEYDOWN)
                 {

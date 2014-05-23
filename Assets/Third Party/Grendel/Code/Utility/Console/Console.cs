@@ -91,7 +91,7 @@ public class Console : Singleton<Console>
 
 	private void UserInputHandler(object sender, UserInputKeyEvent evt)
 	{
-		if (evt.KeyBind == BrawlerUserInput.Instance.ToggleConsole && evt.Type == UserInputKeyEvent.TYPE.KEYDOWN)
+		if (evt.KeyBind == OrbitUserInput.Instance.ToggleConsole && evt.Type == UserInputKeyEvent.TYPE.KEYDOWN)
 		{
 			ToggleConsole();
 		}

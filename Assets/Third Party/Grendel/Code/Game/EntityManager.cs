@@ -6,7 +6,7 @@ public class EntityManager : MonoBehaviour {
 
 	public int UpdateAmount = 5;
 	public int CreationAmount = 5;
-	public static int MaxEntities = 10000; //limit the max number of entities allowed in the scene
+	public static int MaxEntities = 1000; //limit the max number of entities allowed in the scene
 	public static Dictionary<int, Entity> EntityDictionary = new Dictionary<int, Entity>();	//list of entities
 	
 	private static int _lastOpenIndex = 0; //a reference to the last open index for adding new entities
@@ -50,7 +50,7 @@ public class EntityManager : MonoBehaviour {
 	{		
 		while (true)
 		{				
-			_updateTargetIndex += UpdateAmount;			
+			_updateTargetIndex = Mathf.Clamp(_updateTargetIndex + UpdateAmount, 0, _toUpdateArray.Length);			
 		
 			for ( ; _updateIndex <= _updateTargetIndex && _updateIndex < MaxEntities; _updateIndex++)
 			{				
@@ -61,58 +61,15 @@ public class EntityManager : MonoBehaviour {
 				}				
 			}			
 			
-			if ( _updateIndex >= (MaxEntities - 1) ) {_updateTargetIndex = 0; _updateIndex = 0;} //reset the cycle
+			if ( _updateIndex >= (MaxEntities - 1) || _updateIndex >= _toUpdateArray.Length - 1) 
+			{
+				_updateTargetIndex = 0; 
+				_updateIndex = 0;
+			} //reset the cycle
 			
 			yield return new WaitForSeconds(Time.deltaTime); //pace the coroutine
 		}
-	}	
-			
-//			//initialize our remove array, and simultaneously remove any entities in that array		
-//			foreach(int key in _removeList)
-//			{				
-//				if (key == null){ continue; }
-//				else
-//				{
-//					EntityDictionary.Remove(key);
-//				}				
-//			}
-//			_removeList.Clear();			
-//			
-//			//initialize our add array, and simultaneously add any entities in that array
-//			foreach(Entity entity in _addList)
-//			{				
-//				if (entity == null){ continue; }
-//				else
-//				{
-//					EntityDictionary.Add(entity.BaseInstanceID, entity);
-//				}				
-//			}
-//			_addList.Clear();
-//			
-//			foreach(int key in EntityDictionary.Keys)
-//			{					
-//				_testEntity = EntityDictionary[key]; //grab a referene to the entity to be updated
-//				
-//				//look for dead entities and remove them
-//				if (_testEntity.ToBeKilled)
-//				{
-//					_removeList.Add(key);					
-//					_testEntity.KillEntity(); 
-//					continue;
-//				}
-//				
-//				_testEntity.CalledUpdate(); //update valid entities								
-//				_updateIndex++; //increment
-//				
-//				if (_updateIndex >= _updateTargetIndex)
-//				{
-//					yield return new WaitForSeconds(Time.deltaTime);	
-//				}
-//				
-//				_updateTargetIndex += UpdateAmount;
-//			}			
-//			
-//			if ( _updateIndex >= (MaxZombies - 1) ) {_updateTargetIndex = 0; _updateIndex = 0;} //reset the cycle		
+	}
 					
 	public static void AddToUpdateList(Entity entity)
 	{		

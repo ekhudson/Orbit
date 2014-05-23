@@ -8,8 +8,8 @@ using GrendelEditor.UI;
 
 using XInputDotNetPure;
 
-[CustomEditor(typeof(BrawlerUserInput), true)]
-public class UserInputEditor : GrendelEditor<BrawlerUserInput>
+[CustomEditor(typeof(OrbitUserInput), true)]
+public class UserInputEditor : GrendelEditor<OrbitUserInput>
 {
     private const float kLabelWidth = 64f;
     private const float kButtonWidth = 128f;

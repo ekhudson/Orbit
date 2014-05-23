@@ -50,7 +50,7 @@ public class ControllerDebugGUI : MonoBehaviour
 		mChoiceHeight = Screen.height * kControllerChoicePercent;
 		mTriggerWidth = Screen.width * kShoulderTriggerWidthPercent;
 
-		Color guiColor = BrawlerPlayerManager.Instance.PlayerColours[mControllerChoice];
+		Color guiColor = OrbitPlayerManager.Instance.PlayerColours[mControllerChoice];
 		guiColor.a = 0.35f;
 		GUI.color = guiColor;
 
