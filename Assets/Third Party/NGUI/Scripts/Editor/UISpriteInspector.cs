@@ -1,6 +1,6 @@
 //----------------------------------------------
 //            NGUI: Next-Gen UI kit
-// Copyright © 2011-2012 Tasharen Entertainment
+// Copyright © 2011-2014 Tasharen Entertainment
 //----------------------------------------------
 
 using UnityEngine;
@@ -11,25 +11,22 @@ using System.Collections.Generic;
 /// Inspector class used to edit UISprites.
 /// </summary>
 
-[CustomEditor(typeof(UISprite))]
-public class UISpriteInspector : UIWidgetInspector
+[CanEditMultipleObjects]
+[CustomEditor(typeof(UISprite), true)]
+public class UISpriteInspector : UIBasicSpriteEditor
 {
-	protected UISprite mSprite;
-
 	/// <summary>
 	/// Atlas selection callback.
 	/// </summary>
 
-	void OnSelectAtlas (MonoBehaviour obj)
+	void OnSelectAtlas (Object obj)
 	{
-		if (mSprite != null)
-		{
-			NGUIEditorTools.RegisterUndo("Atlas Selection", mSprite);
-			bool resize = (mSprite.atlas == null);
-			mSprite.atlas = obj as UIAtlas;
-			if (resize) mSprite.MakePixelPerfect();
-			EditorUtility.SetDirty(mSprite.gameObject);
-		}
+		serializedObject.Update();
+		SerializedProperty sp = serializedObject.FindProperty("mAtlas");
+		sp.objectReferenceValue = obj;
+		serializedObject.ApplyModifiedProperties();
+		NGUITools.SetDirty(serializedObject.targetObject);
+		NGUISettings.atlas = obj as UIAtlas;
 	}
 
 	/// <summary>
@@ -38,25 +35,38 @@ public class UISpriteInspector : UIWidgetInspector
 
 	void SelectSprite (string spriteName)
 	{
-		if (mSprite != null && mSprite.spriteName != spriteName)
-		{
-			NGUIEditorTools.RegisterUndo("Sprite Change", mSprite);
-			mSprite.spriteName = spriteName;
-			mSprite.MakePixelPerfect();
-			EditorUtility.SetDirty(mSprite.gameObject);
-		}
+		serializedObject.Update();
+		SerializedProperty sp = serializedObject.FindProperty("mSpriteName");
+		sp.stringValue = spriteName;
+		serializedObject.ApplyModifiedProperties();
+		NGUITools.SetDirty(serializedObject.targetObject);
+		NGUISettings.selectedSprite = spriteName;
 	}
 
 	/// <summary>
 	/// Draw the atlas and sprite selection fields.
 	/// </summary>
 
-	override protected bool OnDrawProperties ()
+	protected override bool ShouldDrawProperties ()
 	{
-		mSprite = mWidget as UISprite;
-		ComponentSelector.Draw<UIAtlas>(mSprite.atlas, OnSelectAtlas);
-		if (mSprite.atlas == null) return false;
-		NGUIEditorTools.AdvancedSpriteField(mSprite.atlas, mSprite.spriteName, SelectSprite, false);
+		GUILayout.BeginHorizontal();
+		if (NGUIEditorTools.DrawPrefixButton("Atlas"))
+			ComponentSelector.Show<UIAtlas>(OnSelectAtlas);
+		SerializedProperty atlas = NGUIEditorTools.DrawProperty("", serializedObject, "mAtlas", GUILayout.MinWidth(20f));
+		
+		if (GUILayout.Button("Edit", GUILayout.Width(40f)))
+		{
+			if (atlas != null)
+			{
+				UIAtlas atl = atlas.objectReferenceValue as UIAtlas;
+				NGUISettings.atlas = atl;
+				NGUIEditorTools.Select(atl.gameObject);
+			}
+		}
+		GUILayout.EndHorizontal();
+
+		SerializedProperty sp = serializedObject.FindProperty("mSpriteName");
+		NGUIEditorTools.DrawAdvancedSpriteField(atlas.objectReferenceValue as UIAtlas, sp.stringValue, SelectSprite, false);
 		return true;
 	}
 
@@ -64,7 +74,10 @@ public class UISpriteInspector : UIWidgetInspector
 	/// All widgets have a preview.
 	/// </summary>
 
-	public override bool HasPreviewGUI () { return true; }
+	public override bool HasPreviewGUI ()
+	{
+		return (Selection.activeGameObject == null || Selection.gameObjects.Length == 1);
+	}
 
 	/// <summary>
 	/// Draw the sprite preview.
@@ -72,24 +85,13 @@ public class UISpriteInspector : UIWidgetInspector
 
 	public override void OnPreviewGUI (Rect rect, GUIStyle background)
 	{
-		if (mSprite == null || !mSprite.isValid) return;
+		UISprite sprite = target as UISprite;
+		if (sprite == null || !sprite.isValid) return;
 
-		Texture2D tex = mSprite.mainTexture as Texture2D;
+		Texture2D tex = sprite.mainTexture as Texture2D;
 		if (tex == null) return;
 
-		Rect outer = new Rect(mSprite.GetAtlasSprite().outer);
-		Rect inner = new Rect(mSprite.GetAtlasSprite().inner);
-		Rect uv = outer;
-
-		if (mSprite.atlas.coordinates == UIAtlas.Coordinates.Pixels)
-		{
-			uv = NGUIMath.ConvertToTexCoords(outer, tex.width, tex.height);
-		}
-		else
-		{
-			outer = NGUIMath.ConvertToPixels(outer, tex.width, tex.height, true);
-			inner = NGUIMath.ConvertToPixels(inner, tex.width, tex.height, true);
-		}
-		NGUIEditorTools.DrawSprite(tex, rect, outer, inner, uv, mSprite.color);
+		UISpriteData sd = sprite.atlas.GetSprite(sprite.spriteName);
+		NGUIEditorTools.DrawSprite(tex, rect, sd, sprite.color);
 	}
 }

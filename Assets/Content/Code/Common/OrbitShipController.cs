@@ -7,10 +7,13 @@ public class OrbitShipController : MonoBehaviour
 	public float MaxThrustAmount = 10f;
 	public float ThrustPerSecond = 1f;
 	public float Drag = 0.8f; //0 to 1;
+	public float RotationMaxDegPerSecond = 1;
 
 	private Vector3 mCurrentThrust = Vector3.zero;
 	private Vector3 mMouseWorldPosition = Vector3.zero;
-
+	private bool mUsingGamepad = false;
+	private Quaternion mTargetLookRotation = Quaternion.identity;
+	private float mRotationMagnitude = 0f;
 
 	private const float kStopThreshold = 0.05f;
 
@@ -33,7 +36,15 @@ public class OrbitShipController : MonoBehaviour
 
 		ApplyDrag();
 
-		MouseLook();
+
+		if (!mUsingGamepad) 
+		{
+			MouseLook ();
+		}
+		else
+		{
+			RotateShip();
+		}
 	}
 
 	private void MouseLook()
@@ -45,6 +56,11 @@ public class OrbitShipController : MonoBehaviour
 		mMouseWorldPosition.y = mTransform.position.y;
 
 		mTransform.LookAt(mMouseWorldPosition);
+	}
+
+	private void RotateShip()
+	{
+		mTransform.rotation = Quaternion.RotateTowards (mTransform.rotation, mTargetLookRotation, (RotationMaxDegPerSecond * Time.deltaTime) * mRotationMagnitude);
 	}
 
 	private void OnDrawGizmosSelected()
@@ -79,25 +95,70 @@ public class OrbitShipController : MonoBehaviour
 			return;
 		}
 
-		if(evt.KeyBind == OrbitUserInput.Instance.MoveRight && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
+#region Keyboard Input
+
+		if(!OrbitUserInput.Instance.IsGamePadActive(mPlayerComponent.AssociatedGamepad))
 		{
-			mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (ThrustPerSecond * Time.deltaTime), -MaxThrustAmount, MaxThrustAmount);
+			mUsingGamepad = false;
+
+			if(evt.KeyBind == OrbitUserInput.Instance.MoveRight && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
+			{
+				mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (ThrustPerSecond * Time.deltaTime), -MaxThrustAmount, MaxThrustAmount);
+			}
+
+			if(evt.KeyBind == OrbitUserInput.Instance.MoveLeft && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
+			{
+				mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + ((ThrustPerSecond * Time.deltaTime) * -1), -MaxThrustAmount, MaxThrustAmount);
+			}
+
+			if(evt.KeyBind == OrbitUserInput.Instance.MoveUp && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
+			{
+				mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (ThrustPerSecond * Time.deltaTime), -MaxThrustAmount, MaxThrustAmount);
+			}
+			
+			if(evt.KeyBind == OrbitUserInput.Instance.MoveDown && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
+			{
+				mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + ((ThrustPerSecond * Time.deltaTime) * -1), -MaxThrustAmount, MaxThrustAmount);
+			}
+		}
+		else
+		{
+			mUsingGamepad = true;
 		}
 
-		if(evt.KeyBind == OrbitUserInput.Instance.MoveLeft && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
+#endregion
+
+#region Gamepad Input
+
+		if (evt.KeyBind == OrbitUserInput.Instance.MoveCharacter) 
 		{
-			mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + ((ThrustPerSecond * Time.deltaTime) * -1), -MaxThrustAmount, MaxThrustAmount);
+			mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (evt.JoystickInfo.AmountX * (ThrustPerSecond * Time.deltaTime)), -MaxThrustAmount, MaxThrustAmount);
+			mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (evt.JoystickInfo.AmountY * (ThrustPerSecond * Time.deltaTime)), -MaxThrustAmount, MaxThrustAmount);
 		}
 
-		if(evt.KeyBind == OrbitUserInput.Instance.MoveUp && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
+		if (evt.KeyBind == OrbitUserInput.Instance.Look) 
 		{
-			mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (ThrustPerSecond * Time.deltaTime), -MaxThrustAmount, MaxThrustAmount);
+			if (evt.JoystickInfo.AmountX == 0 && evt.JoystickInfo.AmountY == 0)
+			{
+				mTargetLookRotation = mTransform.rotation;
+				mRotationMagnitude = 0f;
+			}
+
+			Vector3 joystickVector = new Vector3(evt.JoystickInfo.AmountX, 0f, evt.JoystickInfo.AmountY);
+
+			Vector3 lookVector = (mTransform.position + joystickVector) - mTransform.position;
+
+			mRotationMagnitude = joystickVector.magnitude;
+
+			if (lookVector == Vector3.zero)
+			{
+				return;
+			}
+
+			mTargetLookRotation = Quaternion.LookRotation( lookVector, Vector3.up);
 		}
-		
-		if(evt.KeyBind == OrbitUserInput.Instance.MoveDown && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
-		{
-			mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + ((ThrustPerSecond * Time.deltaTime) * -1), -MaxThrustAmount, MaxThrustAmount);
-		}
+
+#endregion
 	}
 
 }
