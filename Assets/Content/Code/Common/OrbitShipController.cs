@@ -13,6 +13,7 @@ public class OrbitShipController : MonoBehaviour
 	private Vector3 mMouseWorldPosition = Vector3.zero;
 	private bool mUsingGamepad = false;
 	private Quaternion mTargetLookRotation = Quaternion.identity;
+	private Vector3 mTargetLookVector = Vector3.zero;
 	private float mRotationMagnitude = 0f;
 
 	private const float kStopThreshold = 0.05f;
@@ -21,6 +22,22 @@ public class OrbitShipController : MonoBehaviour
 	private OrbitPlayerComponent mPlayerComponent;
 	private OrbitObject mOrbitObject;
 	private Transform mTransform;
+
+	public Quaternion CurrentTargetLookRotation
+	{
+		get
+		{
+			return mTargetLookRotation;
+		}
+	}
+
+	public Vector3 CurrentTargetLookVector
+	{
+		get
+		{
+			return mTargetLookVector;
+		}
+	}
 
 	private void Start () 
 	{
@@ -141,6 +158,7 @@ public class OrbitShipController : MonoBehaviour
 			if (evt.JoystickInfo.AmountX == 0 && evt.JoystickInfo.AmountY == 0)
 			{
 				mTargetLookRotation = mTransform.rotation;
+				mTargetLookVector = mTransform.forward;
 				mRotationMagnitude = 0f;
 			}
 
@@ -149,9 +167,11 @@ public class OrbitShipController : MonoBehaviour
 			Vector3 lookVector = (mTransform.position + joystickVector) - mTransform.position;
 
 			mRotationMagnitude = joystickVector.magnitude;
+			mTargetLookVector = lookVector;
 
 			if (lookVector == Vector3.zero)
 			{
+				mTargetLookVector = mTransform.forward;
 				return;
 			}
 

@@ -70,4 +70,12 @@ public class OrbitPlayerComponent : MonoBehaviour
 			GetComponentInChildren<SpriteRenderer>().color = mPlayerColor;
 		}
 	}
+
+	public Color PlayerColor
+	{
+		get
+		{
+			return mPlayerColor;
+		}
+	 }
 }

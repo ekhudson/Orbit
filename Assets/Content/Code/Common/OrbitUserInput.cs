@@ -8,8 +8,7 @@ public class OrbitUserInput : UserInput <OrbitUserInput>
 	public GrendelKeyBinding MoveCharacter = new GrendelKeyBinding("Move Character", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	public GrendelKeyBinding Look = new GrendelKeyBinding("Look", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	public GrendelKeyBinding ToggleConsole = new GrendelKeyBinding("Toggle Console", KeyCode.BackQuote, KeyCode.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
-	public GrendelKeyBinding Attack = new GrendelKeyBinding("Attack", KeyCode.Space, KeyCode.R, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.GamePadButtonValues.RightThumb);
-
+	public GrendelKeyBinding PrimaryWeapon = new GrendelKeyBinding("Primary Weapon", KeyCode.Space, KeyCode.R, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.GamePadButtonValues.RightThumb);
 
 	public bool IsGamePadActive(int gamepadID)
 	{
