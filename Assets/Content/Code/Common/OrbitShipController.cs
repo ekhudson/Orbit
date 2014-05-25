@@ -4,11 +4,6 @@ using System.Collections;
 [RequireComponent(typeof(OrbitPlayerComponent), typeof(OrbitObject))]
 public class OrbitShipController : MonoBehaviour 
 {
-	public float MaxThrustAmount = 10f;
-	public float ThrustPerSecond = 1f;
-	public float Drag = 0.8f; //0 to 1;
-	public float RotationMaxDegPerSecond = 1;
-
 	private Vector3 mCurrentThrust = Vector3.zero;
 	private Vector3 mMouseWorldPosition = Vector3.zero;
 	private bool mUsingGamepad = false;
@@ -20,6 +15,7 @@ public class OrbitShipController : MonoBehaviour
 
 	//Component Refs
 	private OrbitPlayerComponent mPlayerComponent;
+	private OrbitShipAttributes mShipAttributes;
 	private OrbitObject mOrbitObject;
 	private Transform mTransform;
 
@@ -43,12 +39,28 @@ public class OrbitShipController : MonoBehaviour
 	{
 		mPlayerComponent = GetComponent<OrbitPlayerComponent>();
 		mOrbitObject = GetComponent<OrbitObject>();
+		mShipAttributes = GetComponent<OrbitShipAttributes>();
 		mTransform = transform;
 		EventManager.Instance.AddHandler<UserInputKeyEvent>(InputHandler);
+
+		if (mShipAttributes != null && mShipAttributes.PrimaryWeapon != null)
+		{
+			mShipAttributes.PrimaryWeapon.Start();
+		}
+		
+		if (mShipAttributes != null && mShipAttributes.SecondaryWeapon != null)
+		{
+			mShipAttributes.SecondaryWeapon.Start();
+		}
 	}	
 
 	private void Update()
 	{
+		if (mShipAttributes == null)
+		{
+			return;
+		}
+
 		mTransform.position += mCurrentThrust;
 
 		ApplyDrag();
@@ -61,6 +73,16 @@ public class OrbitShipController : MonoBehaviour
 		else
 		{
 			RotateShip();
+		}
+
+		if (mShipAttributes != null && mShipAttributes.PrimaryWeapon != null)
+		{
+			mShipAttributes.PrimaryWeapon.Update();
+		}
+
+		if (mShipAttributes != null && mShipAttributes.SecondaryWeapon != null)
+		{
+			mShipAttributes.SecondaryWeapon.Update();
 		}
 	}
 
@@ -77,7 +99,7 @@ public class OrbitShipController : MonoBehaviour
 
 	private void RotateShip()
 	{
-		mTransform.rotation = Quaternion.RotateTowards (mTransform.rotation, mTargetLookRotation, (RotationMaxDegPerSecond * Time.deltaTime) * mRotationMagnitude);
+		mTransform.rotation = Quaternion.RotateTowards (mTransform.rotation, mTargetLookRotation, (mShipAttributes.RotationDegreesPerSecond * Time.deltaTime) * mRotationMagnitude);
 	}
 
 	private void OnDrawGizmosSelected()
@@ -87,7 +109,7 @@ public class OrbitShipController : MonoBehaviour
 
 	private void ApplyDrag()
 	{
-		mCurrentThrust *= Drag;
+		mCurrentThrust *= mShipAttributes.DragAmount;
 
 		if (Mathf.Abs(mCurrentThrust.x) <= kStopThreshold)
 		{
@@ -102,6 +124,11 @@ public class OrbitShipController : MonoBehaviour
 
 	public void InputHandler(object sender, UserInputKeyEvent evt)
 	{
+		if (mShipAttributes == null)
+		{
+			return;
+		}
+
 		if (!gameObject.activeSelf)
 		{
 			return;
@@ -120,22 +147,22 @@ public class OrbitShipController : MonoBehaviour
 
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveRight && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
-				mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (ThrustPerSecond * Time.deltaTime), -MaxThrustAmount, MaxThrustAmount);
+				mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (mShipAttributes.ThrustPerSecond * Time.deltaTime), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
 			}
 
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveLeft && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
-				mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + ((ThrustPerSecond * Time.deltaTime) * -1), -MaxThrustAmount, MaxThrustAmount);
+				mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + ((mShipAttributes.ThrustPerSecond * Time.deltaTime) * -1), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
 			}
 
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveUp && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
-				mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (ThrustPerSecond * Time.deltaTime), -MaxThrustAmount, MaxThrustAmount);
+				mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (mShipAttributes.ThrustPerSecond * Time.deltaTime), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
 			}
 			
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveDown && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
-				mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + ((ThrustPerSecond * Time.deltaTime) * -1), -MaxThrustAmount, MaxThrustAmount);
+				mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + ((mShipAttributes.ThrustPerSecond * Time.deltaTime) * -1), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
 			}
 		}
 		else
@@ -149,8 +176,8 @@ public class OrbitShipController : MonoBehaviour
 
 		if (evt.KeyBind == OrbitUserInput.Instance.MoveCharacter) 
 		{
-			mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (evt.JoystickInfo.AmountX * (ThrustPerSecond * Time.deltaTime)), -MaxThrustAmount, MaxThrustAmount);
-			mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (evt.JoystickInfo.AmountY * (ThrustPerSecond * Time.deltaTime)), -MaxThrustAmount, MaxThrustAmount);
+			mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (evt.JoystickInfo.AmountX * (mShipAttributes.ThrustPerSecond * Time.deltaTime)), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
+			mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (evt.JoystickInfo.AmountY * (mShipAttributes.ThrustPerSecond * Time.deltaTime)), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
 		}
 
 		if (evt.KeyBind == OrbitUserInput.Instance.Look) 
@@ -176,6 +203,14 @@ public class OrbitShipController : MonoBehaviour
 			}
 
 			mTargetLookRotation = Quaternion.LookRotation( lookVector, Vector3.up);
+		}
+
+		if (evt.KeyBind == OrbitUserInput.Instance.PrimaryWeapon && (evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD))
+		{
+			if (mShipAttributes.PrimaryWeapon.WeaponState == OrbitWeapon.WeaponStates.READY)
+			{
+				mShipAttributes.PrimaryWeapon.FireWeapon(mShipAttributes.TurretDefinitions[mShipAttributes.PrimaryWeapon.TurretIndex].GetCurrentMuzzlesForFiring());
+			}
 		}
 
 #endregion

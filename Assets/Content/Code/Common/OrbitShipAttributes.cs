@@ -1,19 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class OrbitShipAttributes : MonoBehaviour 
+[System.Serializable]
+public class OrbitShipAttributes : MonoBehaviour
 {
 	public int Health = 100;
-	public float ThrustPerSecond = 4f; //TODO: Hook these in properly
+	public float ThrustPerSecond = 4f;
 	public float ThrustMax = 0.75f;
 	public float DragAmount = 0.97f;
+	public float RotationDegreesPerSecond = 270f;
+	public OrbitWeapon PrimaryWeapon;
+	public OrbitWeapon SecondaryWeapon;
 	public OrbitTurretDefinition[] TurretDefinitions;
-
-	private void Start()
-	{
-		foreach(OrbitTurretDefinition turret in TurretDefinitions)
-		{
-			turret.Setup(gameObject);
-		}
-	}
 }
