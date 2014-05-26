@@ -2,7 +2,7 @@
 using System.Collections;
 
 [System.Serializable]
-public class OrbitWeapon 
+public class OrbitWeapon : ScriptableObject 
 {
 	public string WeaponName = "New Weapon";
 	public int DamageAmount = 1;

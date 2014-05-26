@@ -213,6 +213,14 @@ public class OrbitShipController : MonoBehaviour
 			}
 		}
 
+		if (evt.KeyBind == OrbitUserInput.Instance.SecondaryWeapon && (evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD))
+		{
+			if (mShipAttributes.SecondaryWeapon.WeaponState == OrbitWeapon.WeaponStates.READY)
+			{
+				mShipAttributes.SecondaryWeapon.FireWeapon(mShipAttributes.TurretDefinitions[mShipAttributes.SecondaryWeapon.TurretIndex].GetCurrentMuzzlesForFiring());
+			}
+		}
+
 #endregion
 	}
 
