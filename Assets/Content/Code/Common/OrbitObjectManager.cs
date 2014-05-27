@@ -30,27 +30,33 @@ public class OrbitObjectManager : Singleton<OrbitObjectManager>
 			return;
 		}
 
-		foreach(OrbitObject obj in mOrbitObjects)
+		for(int i = mOrbitObjects.Count - 1; i >= 0; i--)
 		{
-			if (!obj.AffectedByGravity && !obj.AffectedByOrbitPull)
+			if (!mOrbitObjects[i].AffectedByGravity && !mOrbitObjects[i].AffectedByOrbitPull)
 			{
 				continue;
+			}
+
+			if (mOrbitObjects[i] == null || mOrbitObjects[i].transform == null)
+			{
+				mOrbitObjects.RemoveAt(i);
 			}
 
 			Vector3 directionToGravitator = Vector3.zero;
 
 			foreach(OrbitGravitator gravitator in mGravitators)
 			{
-				directionToGravitator = (gravitator.BaseTransform.position - obj.BaseTransform.position).normalized;
+				directionToGravitator = (gravitator.BaseTransform.position - mOrbitObjects[i].BaseTransform.position).normalized;
 
-				if (obj.AffectedByGravity)
+				if (mOrbitObjects[i].AffectedByGravity)
 				{
-					obj.GravityPull += directionToGravitator * gravitator.GravityPullAmount; //TODO: Higher grav at lower orbits
+					mOrbitObjects[i].GravityPull += directionToGravitator * gravitator.GravityPullAmount; //TODO: Higher grav at lower orbits
 				}
 
-				if (obj.AffectedByOrbitPull)
+				if (mOrbitObjects[i].AffectedByOrbitPull)
 				{
-					obj.BaseTransform.RotateAround(gravitator.BaseTransform.position, Vector3.up, gravitator.OrbitPullAmount * Time.deltaTime);
+					mOrbitObjects[i].BaseTransform.RotateAround(gravitator.BaseTransform.position, Vector3.up, 
+					                                           (gravitator.OrbitPullAmount * Mathf.Clamp((gravitator.OrbitPullAmount / mOrbitObjects[i].Mass), 0.00001f, 1f)) * Time.deltaTime);
 				}
 			}
 		}

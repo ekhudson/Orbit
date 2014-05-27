@@ -5,6 +5,7 @@ using System.Collections;
 
 public class OrbitObject : Entity 
 {
+	public float Mass = 1f;
 	public bool AffectedByGravity = false;
 	public bool AffectedByOrbitPull = false;
 
