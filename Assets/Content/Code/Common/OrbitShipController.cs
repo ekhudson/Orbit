@@ -2,7 +2,7 @@
 using System.Collections;
 
 [RequireComponent(typeof(OrbitPlayerComponent), typeof(OrbitObject))]
-public class OrbitShipController : MonoBehaviour 
+public class OrbitShipController : OrbitHittable 
 {
 	private Vector3 mCurrentThrust = Vector3.zero;
 	private Vector3 mMouseWorldPosition = Vector3.zero;
@@ -35,8 +35,10 @@ public class OrbitShipController : MonoBehaviour
 		}
 	}
 
-	private void Start () 
+	protected override void Start () 
 	{
+		base.Start ();
+
 		mPlayerComponent = GetComponent<OrbitPlayerComponent>();
 		mOrbitObject = GetComponent<OrbitObject>();
 		mShipAttributes = GetComponent<OrbitShipAttributes>();
@@ -120,6 +122,21 @@ public class OrbitShipController : MonoBehaviour
 		{
 			mCurrentThrust.z = 0f;
 		}
+	}
+
+	protected override void OnHit(ProjectileImpactEvent evt)
+	{
+		mShipAttributes.Health -= evt.Projectile.Damage;
+
+		if (mShipAttributes.Health == 0) 
+		{
+			OnDeath();
+		}
+	}
+
+	protected override void OnDeath()
+	{
+
 	}
 
 	public void InputHandler(object sender, UserInputKeyEvent evt)
@@ -209,7 +226,7 @@ public class OrbitShipController : MonoBehaviour
 		{
 			if (mShipAttributes.PrimaryWeapon.WeaponState == OrbitWeapon.WeaponStates.READY)
 			{
-				mShipAttributes.PrimaryWeapon.FireWeapon(mShipAttributes.TurretDefinitions[mShipAttributes.PrimaryWeapon.TurretIndex].GetCurrentMuzzlesForFiring());
+				mShipAttributes.PrimaryWeapon.FireWeapon(mShipAttributes.TurretDefinitions[mShipAttributes.PrimaryWeapon.TurretIndex].GetCurrentMuzzlesForFiring(), gameObject.GetInstanceID(), mPlayerComponent.PlayerColor);
 			}
 		}
 
@@ -217,7 +234,7 @@ public class OrbitShipController : MonoBehaviour
 		{
 			if (mShipAttributes.SecondaryWeapon.WeaponState == OrbitWeapon.WeaponStates.READY)
 			{
-				mShipAttributes.SecondaryWeapon.FireWeapon(mShipAttributes.TurretDefinitions[mShipAttributes.SecondaryWeapon.TurretIndex].GetCurrentMuzzlesForFiring());
+				mShipAttributes.SecondaryWeapon.FireWeapon(mShipAttributes.TurretDefinitions[mShipAttributes.SecondaryWeapon.TurretIndex].GetCurrentMuzzlesForFiring(), gameObject.GetInstanceID(), mPlayerComponent.PlayerColor);
 			}
 		}
 

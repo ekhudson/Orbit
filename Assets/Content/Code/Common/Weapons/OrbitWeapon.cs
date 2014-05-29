@@ -162,7 +162,12 @@ public class OrbitWeapon : ScriptableObject
 		mWeaponState = newState;
 	}
 
-	public void FireWeapon(Transform[] muzzlePoints)
+	public void FireWeapon(Transform[] muzzlePoints, int shooterID)
+	{
+		FireWeapon (muzzlePoints, shooterID, Color.white);
+	}
+
+	public void FireWeapon(Transform[] muzzlePoints, int shooterID, Color tracerColor)
 	{
 		SetState(WeaponStates.FIRING);
 		mCurrentRoundInClip++;
@@ -176,7 +181,7 @@ public class OrbitWeapon : ScriptableObject
 			direction = muzzlePoint.transform.forward;
 
 			OrbitProjectile projectile = (GameObject.Instantiate(ProjectilePrefab, origin, Quaternion.LookRotation(direction)) as GameObject).GetComponent<OrbitProjectile>();
-			projectile.SetupProjectile(ProjectileSpeed, direction, ProjectileLifetime);
+			projectile.SetupProjectile(ProjectileSpeed, direction, ProjectileLifetime, tracerColor, shooterID, DamageAmount);
 		}
 	}
 }

@@ -8,6 +8,8 @@ public class OrbitPlayerComponent : MonoBehaviour
 	private bool mIsActivePlayer = true;
 	private bool mAIPlayer = false;
 	private Color mPlayerColor = Color.white; //TODO: Move this to a PlayerCustomization component?
+	private OrbitShipAttributes mShipAttributes = null;
+	private OrbitShipController mShipController = null;
 
 	public int PlayerID
 	{
@@ -77,5 +79,32 @@ public class OrbitPlayerComponent : MonoBehaviour
 		{
 			return mPlayerColor;
 		}
-	 }
+	}
+
+	public OrbitShipAttributes ShipAttributes
+	{
+		get
+		{
+			if (mShipAttributes == null)
+			{
+				mShipAttributes = gameObject.GetComponent<OrbitShipAttributes>();
+			}
+
+			return mShipAttributes;
+		}
+	}
+
+	public OrbitShipController ShipController
+	{
+		get
+		{
+			if (mShipController == null)
+			{
+				mShipController = gameObject.GetComponent<OrbitShipController>();
+			}
+
+			return mShipController;
+		}
+	}
+
 }

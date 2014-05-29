@@ -5,7 +5,7 @@ public class OrbitHittable : MonoBehaviour
 {
 	private int mInstanceID = -1;
 
-	private void Start () 
+	protected virtual void Start () 
 	{
 		mInstanceID = collider.GetInstanceID();
 		EventManager.Instance.AddHandler<ProjectileImpactEvent>(ProjectileImpactHandler);
@@ -22,7 +22,7 @@ public class OrbitHittable : MonoBehaviour
 		{
 			if (point.otherCollider.GetInstanceID() == mInstanceID)
 			{
-			
+				OnHit(evt);
 			}
 		}
 	}

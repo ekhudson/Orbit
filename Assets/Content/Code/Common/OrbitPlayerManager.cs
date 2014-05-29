@@ -49,6 +49,14 @@ public class OrbitPlayerManager : Singleton<OrbitPlayerManager>
 				player.SetGamepadID(id - 1);
 				player.IsActivePlayer = true;
 				player.SetPlayerColor(PlayerColours[id]);
+
+				MeshRenderer[] renderers = player.GetComponentsInChildren<MeshRenderer>();
+
+				foreach(Renderer renderer in renderers)
+				{
+					renderer.material.color = player.PlayerColor;
+				}
+
 			}
 			else if (id != 1) //don't disable the first player
 			{
@@ -64,7 +72,7 @@ public class OrbitPlayerManager : Singleton<OrbitPlayerManager>
 	{
 		int id = PlayerList.Count + 1;
 
-		//if (BrawlerUserInput.Instance.IsGamePadActive(id - 1))
+		//if (OrbitUserInput.Instance.IsGamePadActive(id - 1))
 		//{
 			mCurrentActivePlayers++;
 			GameObject go = (GameObject)GameObject.Instantiate(CharacterList[0], RandomSpawnPoint().position, Quaternion.identity);
@@ -74,6 +82,13 @@ public class OrbitPlayerManager : Singleton<OrbitPlayerManager>
 			player.SetGamepadID(id - 1);
 			player.IsActivePlayer = true;
 			player.SetPlayerColor(PlayerColours[id]);
+
+			MeshRenderer[] renderers = player.GetComponentsInChildren<MeshRenderer>();
+			
+			foreach(Renderer renderer in renderers)
+			{
+				renderer.material.color = player.PlayerColor;
+			}
 		//}
 	}
 
