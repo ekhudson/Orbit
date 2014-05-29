@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class EntityManager : MonoBehaviour {
+public class EntityManager : Singleton<EntityManager> 
+{
 
 	public int UpdateAmount = 5;
 	public int CreationAmount = 5;
@@ -26,25 +27,7 @@ public class EntityManager : MonoBehaviour {
 	void Start()
 	{
 		StartCoroutine( ManagedUpdate() );
-	}	
-	
-	// Update is called once per frame
-//	void Update () {
-//		
-////		_updateTargetIndex += UpdateAmount;
-////		
-////		for ( ; _updateIndex <= _updateTargetIndex && _updateIndex < MaxZombies && Time.deltaTime < 0.08f; _updateIndex++)
-////		{
-////			//Debug.Log("Index: " + _updateIndex);
-////			_tempZombie = _toUpdateArray[_updateIndex];
-////			if(_tempZombie != null){ _toUpdateArray[_updateIndex].CalledUpdate(); }
-////						
-////		}
-////		
-////		if ( _updateIndex >= (MaxZombies - 1) ) {_updateTargetIndex = 0; _updateIndex = 0;} //reset the cycle
-//		
-//			
-//	}
+	}
 	
 	IEnumerator ManagedUpdate()
 	{		

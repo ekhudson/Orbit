@@ -50,13 +50,15 @@ public class OrbitObjectManager : Singleton<OrbitObjectManager>
 
 				if (mOrbitObjects[i].AffectedByGravity)
 				{
-					mOrbitObjects[i].GravityPull += directionToGravitator * gravitator.GravityPullAmount; //TODO: Higher grav at lower orbits
+					mOrbitObjects[i].GravityPull += directionToGravitator * (gravitator.GravityPullAmount * Mathf.Clamp((gravitator.GravityPullAmount / mOrbitObjects[i].Mass), 0.00001f, 1f)) * Time.deltaTime;  //gravitator.GravityPullAmount; //TODO: Higher grav at lower orbits
 				}
 
 				if (mOrbitObjects[i].AffectedByOrbitPull)
 				{
+					Quaternion currentRotation = mOrbitObjects[i].BaseTransform.rotation;
 					mOrbitObjects[i].BaseTransform.RotateAround(gravitator.BaseTransform.position, Vector3.up, 
-					                                           (gravitator.OrbitPullAmount * Mathf.Clamp((gravitator.OrbitPullAmount / mOrbitObjects[i].Mass), 0.00001f, 1f)) * Time.deltaTime);
+					                                           (gravitator.OrbitPullAmount * Mathf.Clamp((gravitator.OrbitPullAmount / mOrbitObjects[i].Mass), 0.00001f, 1f)) * Time.deltaTime);				
+					mOrbitObjects[i].BaseTransform.rotation = currentRotation;
 				}
 			}
 		}
