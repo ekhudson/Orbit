@@ -36,16 +36,16 @@ public class OrbitObjectManager : Singleton<OrbitObjectManager>
 			{
 				continue;
 			}
-
-			if (mOrbitObjects[i] == null || mOrbitObjects[i].transform == null)
-			{
-				mOrbitObjects.RemoveAt(i);
-			}
-
 			Vector3 directionToGravitator = Vector3.zero;
 
 			foreach(OrbitGravitator gravitator in mGravitators)
 			{
+				if (mOrbitObjects[i] == null || mOrbitObjects[i].BaseTransform == null)
+				{
+					mOrbitObjects.RemoveAt(i);
+					return;
+				}
+
 				directionToGravitator = (gravitator.BaseTransform.position - mOrbitObjects[i].BaseTransform.position).normalized;
 
 				if (mOrbitObjects[i].AffectedByGravity)

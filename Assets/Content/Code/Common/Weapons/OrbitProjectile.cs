@@ -30,8 +30,7 @@ public class OrbitProjectile : OrbitObject
 		if (mCurrentTimeAlive > mLifetime)
 		{
 			OnDeath();
-			Destroy (gameObject);
-
+			RemoveProjectile();
 		}
 
 		mTransform.position += (mThrustMag * (mSpeed * Time.deltaTime));
@@ -40,11 +39,29 @@ public class OrbitProjectile : OrbitObject
 
 	public virtual void OnDeath()
 	{
-		EntityManager.RemoveFromDictionary (mInstanceID);
-
 		if (FXDefinitions.OnDeathFX.Length > 0) 
 		{
 			GameObject.Instantiate (FXDefinitions.OnDeathFX [Random.Range (0, FXDefinitions.OnDeathFX.Length)], mTransform.position, mTransform.rotation);
 		}
+
+		RemoveProjectile();
+	}
+
+	public virtual void RemoveProjectile()
+	{
+		EntityManager.RemoveFromDictionary (mInstanceID);
+		Destroy (gameObject);
+	}
+
+	public void OnCollisionEnter(Collision collision)
+	{
+		EventManager.Instance.Post(new ProjectileImpactEvent(this, -1, collision, this));
+
+		if (FXDefinitions.ImpactFX.Length > 0)
+		{
+			GameObject.Instantiate (FXDefinitions.ImpactFX [Random.Range (0, FXDefinitions.ImpactFX.Length)], mTransform.position, mTransform.rotation);
+		}
+
+		RemoveProjectile();
 	}
 }

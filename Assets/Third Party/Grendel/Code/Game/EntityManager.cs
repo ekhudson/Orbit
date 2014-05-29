@@ -11,7 +11,8 @@ public class EntityManager : Singleton<EntityManager>
 	public static Dictionary<int, Entity> EntityDictionary = new Dictionary<int, Entity>();	//list of entities
 	
 	private static int _lastOpenIndex = 0; //a reference to the last open index for adding new entities
-	private static Entity[] _toUpdateArray = new Entity[0];
+	//private static Entity[] _toUpdateArray = new Entity[0];
+	private static List<Entity> mToUpdateList = new List<Entity>();
 	private int _updateIndex = 0; //current spot in the _toUpdate Array
 	private int _updateTargetIndex = 0; //where we'll end our update cycle
 	//private static List<int> _removeList = new List<int>(); //for removing entities from the EntityDictionary during updating
@@ -21,7 +22,8 @@ public class EntityManager : Singleton<EntityManager>
 	// Use this for initialization
 	void Awake () 
 	{		
-		_toUpdateArray = new Entity[MaxEntities];
+		base.Awake();
+		//_toUpdateArray = new Entity[MaxEntities];
 	}
 	
 	void Start()
@@ -33,18 +35,24 @@ public class EntityManager : Singleton<EntityManager>
 	{		
 		while (true)
 		{				
-			_updateTargetIndex = Mathf.Clamp(_updateTargetIndex + UpdateAmount, 0, _toUpdateArray.Length);			
+			_updateTargetIndex = Mathf.Clamp(_updateTargetIndex + UpdateAmount, 0, mToUpdateList.Count);			
 		
 			for ( ; _updateIndex <= _updateTargetIndex && _updateIndex < MaxEntities; _updateIndex++)
-			{				
-				_testEntity = _toUpdateArray[_updateIndex];				
+			{	
+				if (_updateIndex > mToUpdateList.Count - 1)
+				{
+					continue;
+				}
+
+				_testEntity = mToUpdateList[_updateIndex];	
+
 				if(_testEntity != null)
 				{ 
 					_testEntity.CalledUpdate(); 
 				}				
 			}			
 			
-			if ( _updateIndex >= (MaxEntities - 1) || _updateIndex >= _toUpdateArray.Length - 1) 
+			if ( _updateIndex >= (MaxEntities - 1) || _updateIndex >= mToUpdateList.Count - 1) 
 			{
 				_updateTargetIndex = 0; 
 				_updateIndex = 0;
@@ -56,10 +64,11 @@ public class EntityManager : Singleton<EntityManager>
 					
 	public static void AddToUpdateList(Entity entity)
 	{		
-		if (_lastOpenIndex < MaxEntities)
+		if (mToUpdateList.Count < MaxEntities)
 		{			
-			_toUpdateArray[_lastOpenIndex] = entity;
-			_lastOpenIndex++;
+			mToUpdateList.Add(entity);
+			//_toUpdateArray[_lastOpenIndex] = entity;
+			//_lastOpenIndex++;
 		}
 		else
 		{
@@ -96,6 +105,7 @@ public class EntityManager : Singleton<EntityManager>
 	{
 		try
 		{
+			mToUpdateList.Remove(EntityDictionary[ID]);
 			EntityDictionary.Remove(ID); //attempt to remove an entity from the dictionary
 		}
 		catch
