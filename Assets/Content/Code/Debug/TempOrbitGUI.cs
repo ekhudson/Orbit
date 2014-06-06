@@ -26,6 +26,11 @@ public class TempOrbitGUI : MonoBehaviour
 
 		foreach (OrbitPlayerComponent player in OrbitPlayerManager.Instance.PlayerList) 
 		{
+			if (player == null)
+			{
+				return;
+			}
+
 			GUI.color = player.PlayerColor;
 
 			GUILayout.Label(string.Format("Player {0} - Health: {1}", player.PlayerID, player.ShipAttributes.Health.ToString()), GUI.skin.button);

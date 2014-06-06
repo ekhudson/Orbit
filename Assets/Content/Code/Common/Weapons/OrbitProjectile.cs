@@ -3,7 +3,7 @@ using System.Collections;
 
 public class OrbitProjectile : OrbitObject 
 {
-	public FXDefinition FXDefinitions;
+	public ProjectileFXDefinition FXDefinitions;
 	public ParticleSystem[] ParticleSystemsToColorize;
 	public MeshRenderer[] RenderersToColorize;
 
@@ -15,7 +15,7 @@ public class OrbitProjectile : OrbitObject
 	private int mDamage = 0;
 
 	[System.Serializable]
-	public class FXDefinition
+	public class ProjectileFXDefinition
 	{
 		public GameObject[] ImpactFX;
 		public GameObject[] MissFX;

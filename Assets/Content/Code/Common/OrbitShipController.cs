@@ -4,6 +4,8 @@ using System.Collections;
 [RequireComponent(typeof(OrbitPlayerComponent), typeof(OrbitObject))]
 public class OrbitShipController : OrbitHittable 
 {
+	public ShipFXDefinition FXDefinitions;
+
 	private Vector3 mCurrentThrust = Vector3.zero;
 	private Vector3 mMouseWorldPosition = Vector3.zero;
 	private bool mUsingGamepad = false;
@@ -18,6 +20,13 @@ public class OrbitShipController : OrbitHittable
 	private OrbitShipAttributes mShipAttributes;
 	private OrbitObject mOrbitObject;
 	private Transform mTransform;
+
+	[System.Serializable]
+	public class ShipFXDefinition
+	{
+		public GameObject[] OnDeathFX;
+		public GameObject[] OnSpawnFX;
+	}
 
 	public Quaternion CurrentTargetLookRotation
 	{
@@ -134,9 +143,29 @@ public class OrbitShipController : OrbitHittable
 		}
 	}
 
-	protected override void OnDeath()
+	protected virtual void OnDeath()
 	{
+		if (FXDefinitions.OnDeathFX.Length > 0) 
+		{
+			ParticleSystem particleSystem = (GameObject.Instantiate (FXDefinitions.OnDeathFX [Random.Range (0, FXDefinitions.OnDeathFX.Length)], mTransform.position, mTransform.rotation) as GameObject).GetComponent<ParticleSystem>();
+			particleSystem.startColor = mPlayerComponent.PlayerColor;
+			particleSystem.renderer.material.color = mPlayerComponent.PlayerColor;
+			Renderer[] childRenderers = particleSystem.GetComponentsInChildren<Renderer>();
+			foreach(Renderer childRenderer in childRenderers)
+			{
+				childRenderer.material.color = mPlayerComponent.PlayerColor;
+			}
 
+		}
+
+		RemoveShip();
+	}
+
+	private void RemoveShip()
+	{
+		EntityManager.RemoveFromDictionary (mOrbitObject.BaseInstanceID);
+		OrbitPlayerManager.Instance.PlayerList.Remove(mPlayerComponent);
+		Destroy (gameObject);
 	}
 
 	public void InputHandler(object sender, UserInputKeyEvent evt)
