@@ -72,7 +72,10 @@ public class OrbitShipController : OrbitHittable
 			return;
 		}
 
+
+		mCurrentThrust += mOrbitObject.GravityPull;
 		mTransform.position += mCurrentThrust;
+		//mTransform.position += mOrbitObject.GravityPull;
 
 		ApplyDrag();
 
@@ -155,7 +158,6 @@ public class OrbitShipController : OrbitHittable
 			{
 				childRenderer.material.color = mPlayerComponent.PlayerColor;
 			}
-
 		}
 
 		RemoveShip();

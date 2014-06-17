@@ -7,7 +7,6 @@ public class OrbitObject : Entity
 {
 	public float Mass = 1f;
 	public bool AffectedByGravity = false;
-	public bool AffectedByOrbitPull = false;
 
 	private Vector3 mCurrentGravityPull = Vector3.zero;
 

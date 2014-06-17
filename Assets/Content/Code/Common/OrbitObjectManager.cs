@@ -32,10 +32,13 @@ public class OrbitObjectManager : Singleton<OrbitObjectManager>
 
 		for(int i = mOrbitObjects.Count - 1; i >= 0; i--)
 		{
-			if (!mOrbitObjects[i].AffectedByGravity && !mOrbitObjects[i].AffectedByOrbitPull)
+			if (!mOrbitObjects[i].AffectedByGravity)
 			{
 				continue;
 			}
+
+			mOrbitObjects[i].GravityPull = Vector3.zero;
+
 			Vector3 directionToGravitator = Vector3.zero;
 
 			foreach(OrbitGravitator gravitator in mGravitators)
@@ -46,19 +49,17 @@ public class OrbitObjectManager : Singleton<OrbitObjectManager>
 					return;
 				}
 
-				directionToGravitator = (gravitator.BaseTransform.position - mOrbitObjects[i].BaseTransform.position).normalized;
+				Vector3 objectPos = mOrbitObjects[i].BaseTransform.position;
+				Vector3 gravitatorPos = gravitator.BaseTransform.position;
+
+				objectPos.y = 0f;
+				gravitatorPos.y = 0f;
+
+				directionToGravitator = (gravitatorPos - objectPos).normalized;
 
 				if (mOrbitObjects[i].AffectedByGravity)
 				{
-					mOrbitObjects[i].GravityPull += directionToGravitator * (gravitator.GravityPullAmount * Mathf.Clamp((gravitator.GravityPullAmount / mOrbitObjects[i].Mass), 0.00001f, 1f)) * Time.deltaTime;  //gravitator.GravityPullAmount; //TODO: Higher grav at lower orbits
-				}
-
-				if (mOrbitObjects[i].AffectedByOrbitPull)
-				{
-					Quaternion currentRotation = mOrbitObjects[i].BaseTransform.rotation;
-					mOrbitObjects[i].BaseTransform.RotateAround(gravitator.BaseTransform.position, Vector3.up, 
-					                                           (gravitator.OrbitPullAmount * Mathf.Clamp((gravitator.OrbitPullAmount / mOrbitObjects[i].Mass), 0.00001f, 1f)) * Time.deltaTime);				
-					mOrbitObjects[i].BaseTransform.rotation = currentRotation;
+					mOrbitObjects[i].GravityPull += directionToGravitator * ((gravitator.GravityPullAmount * Mathf.Clamp((gravitator.GravityPullAmount / mOrbitObjects[i].Mass), 0.00001f, 1f)));  //gravitator.GravityPullAmount; //TODO: Higher grav at lower orbits
 				}
 			}
 		}
@@ -72,7 +73,7 @@ public class OrbitObjectManager : Singleton<OrbitObjectManager>
 		}
 	}
 
-	public void RegistorGravityObject(OrbitGravitator gravitator)
+	public void RegisterGravityObject(OrbitGravitator gravitator)
 	{
 		if(!mGravitators.Contains(gravitator))
 		{
