@@ -73,9 +73,11 @@ public class OrbitShipController : OrbitHittable
 		}
 
 
-		mCurrentThrust += mOrbitObject.GravityPull;
+		//mCurrentThrust += (mOrbitObject.GravityPull * Time.deltaTime);
+
+		mCurrentThrust = Quaternion.LookRotation (mOrbitObject.GravityPull) * mCurrentThrust;
+
 		mTransform.position += mCurrentThrust;
-		//mTransform.position += mOrbitObject.GravityPull;
 
 		ApplyDrag();
 
@@ -189,6 +191,8 @@ public class OrbitShipController : OrbitHittable
 
 #region Keyboard Input
 
+		bool thrusting = false;
+
 		if(!OrbitUserInput.Instance.IsGamePadActive(mPlayerComponent.AssociatedGamepad))
 		{
 			mUsingGamepad = false;
@@ -196,23 +200,27 @@ public class OrbitShipController : OrbitHittable
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveRight && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (mShipAttributes.ThrustPerSecond * Time.deltaTime), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
+				thrusting = true;
 			}
 
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveLeft && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + ((mShipAttributes.ThrustPerSecond * Time.deltaTime) * -1), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
+				thrusting = true;
 			}
 
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveUp && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (mShipAttributes.ThrustPerSecond * Time.deltaTime), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
+				thrusting = true;
 			}
 			
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveDown && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + ((mShipAttributes.ThrustPerSecond * Time.deltaTime) * -1), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
+				thrusting = true;
 			}
-		}
+	    }
 		else
 		{
 			mUsingGamepad = true;
@@ -226,6 +234,16 @@ public class OrbitShipController : OrbitHittable
 		{
 			mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (evt.JoystickInfo.AmountX * (mShipAttributes.ThrustPerSecond * Time.deltaTime)), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
 			mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (evt.JoystickInfo.AmountY * (mShipAttributes.ThrustPerSecond * Time.deltaTime)), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
+			thrusting = true;
+		}
+
+		if (!thrusting)
+		{
+
+		}
+		else if (thrusting)
+		{
+
 		}
 
 		if (evt.KeyBind == OrbitUserInput.Instance.Look) 
@@ -253,7 +271,8 @@ public class OrbitShipController : OrbitHittable
 			mTargetLookRotation = Quaternion.LookRotation( lookVector, Vector3.up);
 		}
 
-		if (evt.KeyBind == OrbitUserInput.Instance.PrimaryWeapon && (evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD))
+		if (evt.KeyBind == OrbitUserInput.Instance.PrimaryWeapon && (evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD
+		    || evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 		{
 			if (mShipAttributes.PrimaryWeapon.WeaponState == OrbitWeapon.WeaponStates.READY)
 			{
@@ -261,7 +280,8 @@ public class OrbitShipController : OrbitHittable
 			}
 		}
 
-		if (evt.KeyBind == OrbitUserInput.Instance.SecondaryWeapon && (evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD))
+		if (evt.KeyBind == OrbitUserInput.Instance.SecondaryWeapon && (evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD
+            || evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 		{
 			if (mShipAttributes.SecondaryWeapon.WeaponState == OrbitWeapon.WeaponStates.READY)
 			{

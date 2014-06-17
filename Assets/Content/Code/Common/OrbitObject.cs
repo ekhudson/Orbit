@@ -6,7 +6,8 @@ using System.Collections;
 public class OrbitObject : Entity 
 {
 	public float Mass = 1f;
-	public bool AffectedByGravity = false;
+	public bool AffectedByGravity = true;
+	public bool CalculateButIgnoreGravity = false;
 
 	private Vector3 mCurrentGravityPull = Vector3.zero;
 
@@ -29,10 +30,9 @@ public class OrbitObject : Entity
 
 	public override void CalledUpdate()
 	{
-		if (AffectedByGravity && mCurrentGravityPull != Vector3.zero)
+		if (AffectedByGravity && mCurrentGravityPull != Vector3.zero && !CalculateButIgnoreGravity)
 		{
 			mTransform.position += mCurrentGravityPull * Time.deltaTime;
-			mCurrentGravityPull = Vector3.zero;
 		}
 	}
 
