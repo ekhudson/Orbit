@@ -51,7 +51,12 @@ public class GrendelFolderEditor : GrendelEditor<GrendelFolder>
 			mFolderTextStyle.normal.textColor = EditorGUIUtility.isProSkin ? Color.black : Color.white;
 		}
 
-		GrendelFolder folder = (EditorUtility.InstanceIDToObject(instanceID) as GameObject).GetComponent<GrendelFolder>();
+		GrendelFolder folder = null;
+
+		if ((EditorUtility.InstanceIDToObject(instanceID) as GameObject) != null)
+		{
+			folder = (EditorUtility.InstanceIDToObject(instanceID) as GameObject).GetComponent<GrendelFolder>();
+		}
 
         if (folder != null)
         {
