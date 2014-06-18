@@ -20,6 +20,7 @@ public class OrbitShipController : OrbitHittable
 	private OrbitShipAttributes mShipAttributes;
 	private OrbitObject mOrbitObject;
 	private Transform mTransform;
+	private bool mThrusting = false;
 
 	[System.Serializable]
 	public class ShipFXDefinition
@@ -73,9 +74,17 @@ public class OrbitShipController : OrbitHittable
 		}
 
 
-		//mCurrentThrust += (mOrbitObject.GravityPull * Time.deltaTime);
+		Vector3 newPosition = mTransform.position + mCurrentThrust;
 
-		mCurrentThrust = Quaternion.LookRotation (mOrbitObject.GravityPull) * mCurrentThrust;
+		if (!mThrusting) //alter rotation of thrust based on gravitational pull
+		{
+			Vector3 currentGravDirection = mOrbitObject.GravityPull;
+			Vector3 currentGravPoint = mTransform.position + currentGravDirection;
+			Vector3 newGravDirection = currentGravPoint - newPosition;
+
+			float angleOfOrbit = Vector3.Angle(newPosition, currentGravPoint);
+			mCurrentThrust = Vector3.
+		}
 
 		mTransform.position += mCurrentThrust;
 
@@ -191,7 +200,7 @@ public class OrbitShipController : OrbitHittable
 
 #region Keyboard Input
 
-		bool thrusting = false;
+		mThrusting = false;
 
 		if(!OrbitUserInput.Instance.IsGamePadActive(mPlayerComponent.AssociatedGamepad))
 		{
@@ -200,25 +209,25 @@ public class OrbitShipController : OrbitHittable
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveRight && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (mShipAttributes.ThrustPerSecond * Time.deltaTime), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
-				thrusting = true;
+				mThrusting = true;
 			}
 
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveLeft && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + ((mShipAttributes.ThrustPerSecond * Time.deltaTime) * -1), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
-				thrusting = true;
+				mThrusting = true;
 			}
 
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveUp && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (mShipAttributes.ThrustPerSecond * Time.deltaTime), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
-				thrusting = true;
+				mThrusting = true;
 			}
 			
 			if(evt.KeyBind == OrbitUserInput.Instance.MoveDown && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + ((mShipAttributes.ThrustPerSecond * Time.deltaTime) * -1), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
-				thrusting = true;
+				mThrusting = true;
 			}
 	    }
 		else
@@ -234,16 +243,7 @@ public class OrbitShipController : OrbitHittable
 		{
 			mCurrentThrust.x = Mathf.Clamp(mCurrentThrust.x + (evt.JoystickInfo.AmountX * (mShipAttributes.ThrustPerSecond * Time.deltaTime)), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
 			mCurrentThrust.z = Mathf.Clamp(mCurrentThrust.z + (evt.JoystickInfo.AmountY * (mShipAttributes.ThrustPerSecond * Time.deltaTime)), -mShipAttributes.ThrustMax, mShipAttributes.ThrustMax);
-			thrusting = true;
-		}
-
-		if (!thrusting)
-		{
-
-		}
-		else if (thrusting)
-		{
-
+			mThrusting = true;
 		}
 
 		if (evt.KeyBind == OrbitUserInput.Instance.Look) 
